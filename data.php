@@ -65,7 +65,7 @@
           url : 'proses.php',
           data : data,
           success : function(data){
-
+            alert('Upload data berhasil');
           }
       });
       e.preventDefault();
