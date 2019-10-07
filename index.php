@@ -43,30 +43,3 @@
   <?php include 'footer.php'; ?>
 </body>
 </html>
-
-<?php	
-	require_once __DIR__ . '/vendor/autoload.php';
-	require_once 'koneksi.php';
-	require_once 'stemmer.php';
-	
-	// stem
-	$sentence = 'Perekonomian Indonesia sedang dalam pertumbuhan yang membanggakan';
-	$output   = $stemmer->stem($sentence);		
-
-	$file = file_get_contents('data/file1.txt'); //Proses pengambilan file text	
-	$file = strtolower($file);	//Proses case folding	
-	$word = preg_split("/[\s,.:;-_()!@#$%^&*?<>'–|0123456789]+/",$file); //Proses pemecehan text menjadi kata	
-	
-	$input = file_get_contents('data/stop_words.txt'); //Proses pengambilan stopwords
-	$stop_words = explode("\n",$input);	
-	
-	// $word = array_unique($word); //Menghilangkan kata yang sama atau lebih dari 1
-	for($i=0;$i<count($word);$i++){
-		if(isset($word[$i])){
-			// if(!in_array($word[$i], $stop_words)) // Pengecekan kata dengan stopwords
-					// echo $word[$i]."<br>";
-			// echo $stemmer->stem($word[$i]) . "<br>";
-		}
-	}
-
-?>
