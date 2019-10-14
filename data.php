@@ -66,6 +66,8 @@
           data : data,
           success : function(data){
             alert('Upload data berhasil');
+            $('#hasil').fadeIn();
+            $('.table').append(data);
           }
       });
       e.preventDefault();

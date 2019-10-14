@@ -15,38 +15,38 @@
 				array_push($result, $stemmer->stem($word[$i]));				
 		}
 	}
+
 	$query = mysqli_query($conn,"INSERT INTO artikel VALUES('','".$_FILES['file']['name']."')");
 	$id_artikel = $conn->insert_id;
 
-	for($i=0;$i<count($result)-1;$i++){
+	$temp['kata'] = [];
+	$temp['jumlah'] = [];
+	$c = 0;
 
-		$check = mysqli_query($conn,"SELECT * FROM kata WHERE kata = '".$result[$i]."'");
-
-		if(mysqli_fetch_assoc($check) > 0){
-			$check = mysqli_query($conn,"SELECT * FROM kata WHERE kata = '".$result[$i]."'");
-			while($cek = mysqli_fetch_assoc($check)){
-				$id_kata = $cek['id_kata'];
-			}
-
-			$check = mysqli_query($conn,"SELECT jumlah FROM relasi WHERE kata_id = $id_kata AND artikel_id = $id_artikel");
-
-			if(mysqli_fetch_assoc($check) > 0){
-				$check = mysqli_query($conn,"SELECT jumlah FROM relasi WHERE kata_id = $id_kata AND artikel_id = $id_artikel");
-				while($cek = mysqli_fetch_assoc($check)){
-					$jumlah = $cek['jumlah']+1;
-					$query = mysqli_query($conn,"UPDATE relasi SET jumlah = $jumlah WHERE kata_id = $id_kata AND artikel_id = $id_artikel");
-				}
-			}
-			else{				
-				$query = mysqli_query($conn,"INSERT INTO relasi VALUES('','".$id_kata."','".$id_artikel."','1')");
-			}
+	for ($i=0; $i < count($result); $i++) { 
+		if(in_array($result[$i], $temp['kata'])){
+			$tmp = array_search($result[$i], $temp['kata']);			
+			$temp['jumlah'][$tmp]++;
 		}
+		else{
 
-		else{			
-			$query = mysqli_query($conn,"INSERT INTO kata VALUES('','".$result[$i]."')");
-			$id_kata = $conn->insert_id;
-			$query = mysqli_query($conn,"INSERT INTO relasi VALUES('','".$id_kata."','".$id_artikel."','1')");
+			$temp['kata'][$c] = $result[$i];
+			$temp['jumlah'][$c] = 1;
+			$c++;
 		}
+	}
+
+	$data = "";
+
+	for($i=0;$i<$c;$i++){		
+		$query = mysqli_query($conn, "INSERT INTO relasi VALUES('".$temp['kata'][$i]."',".$id_artikel.",".$temp['jumlah'][$i].")");
+
+		$data .= "<tr>";
+		$data .= "<td>".$temp['kata'][$i]."</td>";
+		$data .= "<td>".$temp['jumlah'][$i]."</td>";
+		$data .= "</tr>";
 
 	}
+
+	echo $data;
 ?>

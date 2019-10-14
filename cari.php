@@ -2,10 +2,19 @@
 	require_once __DIR__ . '/vendor/autoload.php';
 	require_once 'koneksi.php';
 	require_once 'stemmer.php';	
+	
+	$word = preg_split("/[\s,.:;-_()!@#$%^&*?<>'–|0123456789]+/",$_POST['cari']); //Proses pemecehan text menjadi kata	
 
-	$cari = $stemmer->stem($_POST['cari']);	
-	$cari = preg_split("/[\s,.:;-_()!@#$%^&*?<>'–|0123456789]+/",$cari); //Proses pemecehan text menjadi kata
-	// echo print_r($cari);
+	$input = file_get_contents('data/stop_words.txt'); //Proses pengambilan stopwords
+	$stop_words = explode("\n",$input);
+
+	$cari = [];
+	for($i=0;$i<count($word);$i++){
+		if(isset($word[$i])){
+			if(!in_array($word[$i], $stop_words)) // Pengecekan kata dengan stopwords					
+				array_push($cari, $stemmer->stem($word[$i]));				
+		}
+	}
 
 	$judul = [];	
 	$jumlah = [];
@@ -24,15 +33,13 @@
 		$jumlah[$i] = [];
 		for ($j=0; $j < count($cari) ; $j++) { 
 			$query = mysqli_query($conn,
-				"SELECT judul,kata,jumlah FROM relasi
-				LEFT JOIN kata ON id_kata = kata_id
+				"SELECT judul,kata,jumlah FROM relasi				
 				LEFT JOIN artikel ON id_artikel = artikel_id
 				WHERE kata = '$cari[$j]' AND artikel_id = '$id_artikel[$i]'"
 			);
 			if(mysqli_fetch_assoc($query) > 0){
 				$query = mysqli_query($conn,
-					"SELECT judul,kata,jumlah FROM relasi
-					LEFT JOIN kata ON id_kata = kata_id
+					"SELECT judul,kata,jumlah FROM relasi					
 					LEFT JOIN artikel ON id_artikel = artikel_id
 					WHERE kata = '$cari[$j]' AND artikel_id = '$id_artikel[$i]'"
 				);

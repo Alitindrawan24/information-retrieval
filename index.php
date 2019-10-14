@@ -50,7 +50,7 @@
             data : data,
             success : function(data){  
               $('.table').empty();
-              $('.table').append(data);              
+              $('.table').append(data);
             }
         });
         e.preventDefault();
