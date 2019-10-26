@@ -26,6 +26,7 @@
       <a class="navbar-brand" href="#">Information Retrieval</a>
       <li style="list-style: none;">
         <a class="btn" href="index.php">Cari</a>
+        <a class="btn" href="perbandingan.php">Cos Sim</a>
         <a class="btn" href="data.php">Database</a>
       </li>
     </div>
