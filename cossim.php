@@ -7,6 +7,7 @@
 	$stop_words = explode("\n",$input);	
 
 	for($x=1;$x<=2;$x++){
+		$d[$x] = 0;
 		$file = file_get_contents(__DIR__."/data/".$_POST['doc_'.$x]);
 		$file = strtolower($file);
 		$word = preg_split("/[\s,.:;-_()!@#$%^&*?<>'–|0123456789]+/",$file);
@@ -33,8 +34,12 @@
 					$temp['kata'][$x][$c] = $result[$i];
 					$temp['jumlah'][$x][$c] = 1;
 					$c++;
-				}
+				}				
 			}
+		}
+
+		for ($i=0; $i < $c; $i++) { 
+			$d[$x] += ($temp['jumlah'][$x][$i]*$temp['jumlah'][$x][$i]);
 		}
 	}
 	$hasil = array_intersect($temp['kata'][1],$temp['kata'][2]);
@@ -46,8 +51,8 @@
 		<th>d1*d2</th>
 	</tr>";
 	$total = 0;
-	$d1 = 0;
-	$d2 = 0;
+	// $d1 = 0;
+	// $d2 = 0;
 	foreach ($hasil as $idx => $val) {
 		$idx2 = array_search($val, $temp['kata'][2]);
 		$tabel .= "<tr>";
@@ -57,8 +62,8 @@
 		$tabel .= "<td>".$temp['jumlah'][1][$idx] * $temp['jumlah'][2][$idx2]."</td>";
 		$tabel .= "</tr>";
 		$total += $temp['jumlah'][1][$idx] * $temp['jumlah'][2][$idx2];
-		$d1 += ($temp['jumlah'][1][$idx]*$temp['jumlah'][1][$idx]);
-		$d2 += ($temp['jumlah'][2][$idx2]*$temp['jumlah'][2][$idx2]);
+		// $d1 += ($temp['jumlah'][1][$idx]*$temp['jumlah'][1][$idx]);
+		// $d2 += ($temp['jumlah'][2][$idx2]*$temp['jumlah'][2][$idx2]);
 	}
 	$tabel .= "<tr>
 		<th>Total</th>
@@ -70,19 +75,19 @@
 		<th>||d1||</th>
 		<th></th>
 		<th></th>
-		<th>".sqrt($d1)."</th>
+		<th>".sqrt($d[1])."</th>
 	</tr>";
 	$tabel .= "<tr>
 		<th>||d2||</th>
 		<th></th>
 		<th></th>
-		<th>".sqrt($d2)."</th>
+		<th>".sqrt($d[2])."</th>
 	</tr>";
 	$tabel .= "<tr>
 		<th>cos(d1,d2)</th>
 		<th></th>
 		<th></th>
-		<th>".($total/sqrt($d1 * $d2))."</th>
+		<th>".($total/sqrt($d[1] * $d[2]))."</th>
 	</tr>";
 	echo $tabel;
 	// echo print_r($hasil);

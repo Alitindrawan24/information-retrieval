@@ -70,12 +70,16 @@
 		$total[$i] = 0;
 		for ($j=0; $j < count($cari) ; $j++) {
 			//Perhitungan TF IDF			
-			if($jumlah[$i][$j] > 0)
+			if($jumlah[$i][$j] > 0){
 				$jumlah[$i][$j] = (log($jumlah[$i][$j])+1);
-			else
+				$tfidf[$i][$j] = $jumlah[$i][$j] * log($c/$df[$i][$j]);
+			}
+			else{
 				$jumlah[$i][$j] = 0;
+				$tfidf[$i][$j] = 0;
+			}
+						
 
-			$tfidf[$i][$j] = $jumlah[$i][$j] * log($c/$df[$i][$j]);
 			$total[$i] += $tfidf[$i][$j];
 		}
 	}
