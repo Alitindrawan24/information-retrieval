@@ -2,9 +2,11 @@
 <?php
 	include 'koneksi.php';
 	$query = mysqli_query($conn,'SELECT * FROM artikel');
-	$data = [];		
+	$data = [];
+  $id = [];
 	while($row=mysqli_fetch_assoc($query)){		
 		array_push($data, $row['judul']);
+    array_push($id, $row['id_artikel']);
 	}
 ?>
 
@@ -24,7 +26,7 @@
                 <select name="doc_1" class="form-control" required>
                 	<option selected disabled hidden value="">Pilih artikel</option>
                 	<?php for($i=0;$i<count($data);$i++): ?>
-                		<option value="<?php echo $data[$i] ?>"><?php echo $data[$i]; ?></option>
+                		<option value="<?php echo $id[$i] ?>"><?php echo $data[$i]; ?></option>
                 	<?php endfor; ?>
                 </select>                
               </div>
@@ -32,7 +34,7 @@
                 <select name="doc_2" class="form-control" required>
                 	<option selected disabled hidden value="">Pilih artikel</option>
                 	<?php for($i=0;$i<count($data);$i++): ?>
-                		<option value="<?php echo $data[$i] ?>"><?php echo $data[$i]; ?></option>
+                		<option value="<?php echo $id[$i] ?>"><?php echo $data[$i]; ?></option>
                 	<?php endfor; ?>
                 </select>
               </div>

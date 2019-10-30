@@ -5,43 +5,27 @@
 	
 	$input = file_get_contents('data/stop_words.txt'); //Proses pengambilan stopwords
 	$stop_words = explode("\n",$input);	
+	$max = 2;
 
 	for($x=1;$x<=2;$x++){
-		$d[$x] = 0;
-		$file = file_get_contents(__DIR__."/data/".$_POST['doc_'.$x]);
-		$file = strtolower($file);
-		$word = preg_split("/[\s,.:;-_()!@#$%^&*?<>'–|0123456789]+/",$file);
-		$result = [];
-		for($i=0;$i<count($word);$i++){
-			if(isset($word[$i])){
-				if(!in_array($word[$i], $stop_words))
-					array_push($result, $stemmer->stem($word[$i]));				
-			}
-		}	
-
+		$d[$x] = 0;		
+		$id = $_POST['doc_'.$x];		
 		$temp['kata'][$x] = [];
 		$temp['jumlah'][$x] = [];
-		$c = 0;
+		$temp['df'][$x] = [];		
 
-		for ($i=0; $i < count($result); $i++) { 
-			if($result[$i] != ''){
-				if(in_array($result[$i], $temp['kata'][$x])){
-					$tmp = array_search($result[$i], $temp['kata'][$x]);
-					$temp['jumlah'][$x][$tmp]++;
-				}
-				else{
+		$query = mysqli_query($conn,"SELECT * FROM relasi WHERE artikel_id = $id");
+		while($row=mysqli_fetch_assoc($query)){
+			array_push($temp['kata'][$x], $row['kata']);
+	    	array_push($temp['jumlah'][$x], $row['jumlah']);
+	    	array_push($temp['df'][$x], $row['DF']);
 
-					$temp['kata'][$x][$c] = $result[$i];
-					$temp['jumlah'][$x][$c] = 1;
-					$c++;
-				}				
-			}
+	    	$d[$x] += (($row['jumlah']) *($max/$row['DF'])) * (($row['jumlah']) *($max/$row['DF']));
 		}
-
-		for ($i=0; $i < $c; $i++) { 
-			$d[$x] += ($temp['jumlah'][$x][$i]*$temp['jumlah'][$x][$i]);
-		}
+		
+		$c = 0;		
 	}
+
 	$hasil = array_intersect($temp['kata'][1],$temp['kata'][2]);
 
 	$tabel = "<tr>
@@ -50,20 +34,21 @@
 		<th>d2</th>
 		<th>d1*d2</th>
 	</tr>";
-	$total = 0;
-	// $d1 = 0;
-	// $d2 = 0;
+	$total = 0;	
 	foreach ($hasil as $idx => $val) {
 		$idx2 = array_search($val, $temp['kata'][2]);
+
+		$tfidf[1] = (($temp['jumlah'][1][$idx]) * ($max/$temp['df'][1][$idx]));
+		$tfidf[2] = (($temp['jumlah'][2][$idx2]) * ($max/$temp['df'][2][$idx2]));
+
 		$tabel .= "<tr>";
 		$tabel .= "<td>".$val."</td>";
-		$tabel .= "<td>".$temp['jumlah'][1][$idx]."</td>";
-		$tabel .= "<td>".$temp['jumlah'][2][$idx2]."</td>";
-		$tabel .= "<td>".$temp['jumlah'][1][$idx] * $temp['jumlah'][2][$idx2]."</td>";
+		$tabel .= "<td>".$tfidf[1]."</td>";
+		$tabel .= "<td>".$tfidf[2]."</td>";
+		$tabel .= "<td>".$tfidf[1]*$tfidf[2]."</td>";
 		$tabel .= "</tr>";
-		$total += $temp['jumlah'][1][$idx] * $temp['jumlah'][2][$idx2];
-		// $d1 += ($temp['jumlah'][1][$idx]*$temp['jumlah'][1][$idx]);
-		// $d2 += ($temp['jumlah'][2][$idx2]*$temp['jumlah'][2][$idx2]);
+
+		$total += $tfidf[1]*$tfidf[2];
 	}
 	$tabel .= "<tr>
 		<th>Total</th>
