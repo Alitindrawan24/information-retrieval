@@ -14,18 +14,19 @@
 		$temp['jumlah'][$x] = [];
 		$temp['df'][$x] = [];		
 
+		//Mengambil semua data kata, tf, dan df dari database
 		$query = mysqli_query($conn,"SELECT * FROM relasi WHERE artikel_id = $id");
 		while($row=mysqli_fetch_assoc($query)){
 			array_push($temp['kata'][$x], $row['kata']);
 	    	array_push($temp['jumlah'][$x], $row['jumlah']);
 	    	array_push($temp['df'][$x], $row['DF']);
 
+	    	//Menghitung nilai tfidf dari semua kata perdokumen
 	    	$d[$x] += (($row['jumlah']) *($max/$row['DF'])) * (($row['jumlah']) *($max/$row['DF']));
-		}
-		
-		$c = 0;		
+		}	
 	}
 
+	//Proses mencari kata-kata yang sama antara 2 dokumen
 	$hasil = array_intersect($temp['kata'][1],$temp['kata'][2]);
 
 	$tabel = "<tr>
@@ -38,6 +39,7 @@
 	foreach ($hasil as $idx => $val) {
 		$idx2 = array_search($val, $temp['kata'][2]);
 
+		//Mendhitung tfidf untuk kata yang sama
 		$tfidf[1] = (($temp['jumlah'][1][$idx]) * ($max/$temp['df'][1][$idx]));
 		$tfidf[2] = (($temp['jumlah'][2][$idx2]) * ($max/$temp['df'][2][$idx2]));
 
@@ -48,6 +50,7 @@
 		$tabel .= "<td>".$tfidf[1]*$tfidf[2]."</td>";
 		$tabel .= "</tr>";
 
+		//Menghitung total tfidf
 		$total += $tfidf[1]*$tfidf[2];
 	}
 	$tabel .= "<tr>
@@ -74,6 +77,5 @@
 		<th></th>
 		<th>".($total/sqrt($d[1] * $d[2]))."</th>
 	</tr>";
-	echo $tabel;
-	// echo print_r($hasil);
+	echo $tabel;	
 ?>
