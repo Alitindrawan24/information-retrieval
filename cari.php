@@ -21,6 +21,7 @@
 	$jumlah = [];
 	$df = [];
 	$id_artikel = [];
+	$ap = [];
 	$artikel = mysqli_query($conn,'SELECT * FROM artikel');
 	$c = 0;
 	while($row = mysqli_fetch_assoc($artikel)){
@@ -34,6 +35,7 @@
 	for ($i=0; $i < $c; $i++) { 
 		$jumlah[$i] = [];
 		$df[$i] = [];
+		$ap[$i] = [];
 		for ($j=0; $j < count($cari) ; $j++) { 
 			$query = mysqli_query($conn,
 				"SELECT judul,kata,jumlah,DF FROM relasi				
@@ -42,13 +44,14 @@
 			);
 			if(mysqli_fetch_assoc($query) > 0){
 				$query = mysqli_query($conn,
-					"SELECT judul,kata,jumlah, DF FROM relasi					
+					"SELECT judul,kata,jumlah, DF, AP FROM relasi					
 					LEFT JOIN artikel ON id_artikel = artikel_id
 					WHERE kata = '$cari[$j]' AND artikel_id = '$id_artikel[$i]'"
 				);
 				while($row = mysqli_fetch_assoc($query)){
 					$jumlah[$i][$j] = $row['jumlah'];
 					$df[$i][$j] = $row['DF'];
+					$ap[$i][$j] = $row['AP'];
 				}
 			}
 			else{
@@ -65,22 +68,29 @@
 	}		
 	$tfidf = [];
 	$total = [];
+	$total2 = [];
+	$tfidfap = [];
 	for ($i=0; $i < $c; $i++) { 
-		$tfidf[$i] = [];		
+		$tfidfap[$i] = [];
+		$tfidf[$i] = [];
 		$total[$i] = 0;
+		$total2[$i] = 0;
 		for ($j=0; $j < count($cari) ; $j++) {
 			//Perhitungan TF IDF			
 			if($jumlah[$i][$j] > 0){
 				$jumlah[$i][$j] = (log($jumlah[$i][$j])+1);
 				$tfidf[$i][$j] = $jumlah[$i][$j] * log($c/$df[$i][$j]);
+				$tfidfap[$i][$j] = $tfidf[$i][$j] * $ap[$i][$j];
 			}
 			else{
 				$jumlah[$i][$j] = 0;
 				$tfidf[$i][$j] = 0;
+				$tfidfap[$i][$j] = 0;
 			}
 						
 
 			$total[$i] += $tfidf[$i][$j];
+			$total2[$i] += $tfidfap[$i][$j];
 		}
 	}
 
@@ -90,6 +100,10 @@
 				$temp = $total[$j];
 				$total[$j] = $total[$i];
 				$total[$i] = $temp;
+
+				$temp = $total2[$j];
+				$total2[$j] = $total2[$i];
+				$total2[$i] = $temp;
 
 				$temp = $tfidf[$i];
 				$tfidf[$i] = $tfidf[$j];
@@ -116,7 +130,7 @@
 					$data .= "<th></th>";
 				}
 				else if($j == count($cari)){
-					$data .= "<th>TOTAL</th>";	
+					$data .= "<th>TOTAL</th>";					
 				}
 				else
 					$data .= "<th>".$cari[$j]."</th>";
@@ -130,7 +144,7 @@
 					$data .= "<td>".$judul[$i]."</td>";
 				}
 				else if($j == count($cari)){
-					$data .= "<th>".$total[$i]."</th>";	
+					$data .= "<th>".$total[$i]." / ".$total2[$i]."</th>";	
 				}
 				else
 					$data .= "<td>".$tfidf[$i][$j]."</td>";
