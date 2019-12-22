@@ -23,6 +23,7 @@
 
 	$temp['kata'] = [];
 	$temp['jumlah'] = [];
+
 	$c = 0;
 
 	for ($i=0; $i < count($result); $i++) { 
@@ -40,7 +41,7 @@
 		}
 	}
 
-	$data = "";
+	$data = "";	
 
 	for($i=0;$i<$c;$i++){		
 		$query = mysqli_query($conn, "INSERT INTO relasi VALUES('".$temp['kata'][$i]."',".$id_artikel.",".$temp['jumlah'][$i].",0)");
