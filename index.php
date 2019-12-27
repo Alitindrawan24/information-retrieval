@@ -48,9 +48,10 @@
             method : 'POST',            
             url : 'cari.php',
             data : data,
-            success : function(data){  
+            success : function(data){               
               $('.table').empty();
               $('.table').append(data);
+              $('.table').DataTable();
             }
         });
         e.preventDefault();

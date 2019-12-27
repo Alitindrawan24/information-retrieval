@@ -12,7 +12,8 @@
 		$id = $_POST['doc_'.$x];		
 		$temp['kata'][$x] = [];
 		$temp['jumlah'][$x] = [];
-		$temp['df'][$x] = [];		
+		$temp['df'][$x] = [];
+		$temp['ap'][$x] = [];
 
 		//Mengambil semua data kata, tf, dan df dari database
 		$query = mysqli_query($conn,"SELECT * FROM relasi WHERE artikel_id = $id");
@@ -20,6 +21,7 @@
 			array_push($temp['kata'][$x], $row['kata']);
 	    	array_push($temp['jumlah'][$x], $row['jumlah']);
 	    	array_push($temp['df'][$x], $row['DF']);
+	    	array_push($temp['ap'][$x], $row['AP']);
 
 	    	//Menghitung nilai tfidf dari semua kata perdokumen
 	    	$d[$x] += (($row['jumlah']) *($max/$row['DF'])) * (($row['jumlah']) *($max/$row['DF']));

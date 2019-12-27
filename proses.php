@@ -1,9 +1,32 @@
 <?php			
 	require_once __DIR__ . '/vendor/autoload.php';
 	require_once 'koneksi.php';
-	require_once 'stemmer.php';	
+	require_once 'stemmer.php';		
+	use Spatie\PdfToText\Pdf;	
+
+	$path = 'c:/Program Files/Git/mingw64/bin/pdftotext';	
 	
-	$file = file_get_contents($_FILES['file']['tmp_name']); //Proses pengambilan file text	
+	// $file = file_get_contents($_FILES['file']['tmp_name']); //Proses pengambilan file text		
+	$pdf = (new Pdf($path))
+		    ->setPdf('data/'.$_FILES['file']['name'])
+		    ->text();
+
+	$del = ["p-ISSN","Jurnal Elektronik Ilmu Komputer"];
+
+	for ($i=0; $i <count($del) ; $i++) { 
+		if(strpos($pdf, $del[$i])){
+			$temp = strpos($pdf, $del[$i]);
+			while($pdf[$temp] != "\n"){
+				$temp++;
+			}
+			
+			$text = cut_string_between($pdf,strpos($pdf, $del[$i]), $temp);
+			$pdf = str_replace($text, '', $pdf);
+		}
+	}	
+
+	$file = $pdf;	
+
 	$file = strtolower($file);	//Proses case folding	
 	$word = preg_split("/[\s,.:;-_()!@#$%^&*?<>'–|0123456789]+/",$file); //Proses pemecehan text menjadi kata	
 	$input = file_get_contents('data/stop_words.txt'); //Proses pengambilan stopwords	
@@ -18,14 +41,21 @@
 
 	// $result = array_filter(array_map('trim', $result));
 
+	// return print_r($result);
+
 	$query = mysqli_query($conn,"INSERT INTO artikel VALUES('','".$_FILES['file']['name']."')");
 	$id_artikel = $conn->insert_id;
 
 	$temp['kata'] = [];
 	$temp['jumlah'] = [];
 	$temp['ap'] = [];
+	$temp['fp'] = [];
+	$temp['lp'] = [];
+
 	$ap_status = [];
 	$ap_value = [];
+	$fp_value = [];
+	$lp_value = [];
 
 	$c = 0;
 	
@@ -45,6 +75,8 @@
 
 				$ap_status[$result[$i]] = true;
 				$ap_value[$result[$i]] = $AP;
+				$fp_value[$result[$i]] = 1 / ($firstPosition);
+				$lp_value[$result[$i]] = 1 / ($lastPosition);
 
 			}
 
@@ -63,6 +95,8 @@
 				$temp['kata'][$c] = $result[$i];
 				$temp['jumlah'][$c] = 1;
 				$temp['ap'][$c] = $ap_value[$result[$i]];
+				$temp['fp'][$c] = $fp_value[$result[$i]];
+				$temp['lp'][$c] = $lp_value[$result[$i]];
 				$c++;
 			}
 		}
@@ -71,7 +105,7 @@
 	$data = "";	
 
 	for($i=0;$i<$c;$i++){		
-		$query = mysqli_query($conn, "INSERT INTO relasi VALUES('".$temp['kata'][$i]."',".$id_artikel.",".$temp['jumlah'][$i].",0,".$temp['ap'][$i].")");
+		$query = mysqli_query($conn, "INSERT INTO relasi VALUES('".$temp['kata'][$i]."',".$id_artikel.",".$temp['jumlah'][$i].",0,".$temp['ap'][$i].",".$temp['fp'][$i].",".$temp['lp'][$i].")");
 
 		$max = mysqli_query($conn, "SELECT count(kata) FROM relasi WHERE kata = '".$temp['kata'][$i]."'");
 
@@ -86,5 +120,17 @@
 
 	}
 
+	mysqli_query($conn,"DELETE * FROM relasi WHERE DF = 0");
+
+
 	echo $data;
+
+	function cut_string_between($string, $start, $end){
+		$text = '';
+		for ($i=$start; $i <= $end ; $i++) { 
+			$text .= $string[$i];
+		}
+
+		return $text;
+	}
 ?>

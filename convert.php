@@ -1,21 +1,32 @@
 <?php
 
 	require __DIR__.'\vendor\autoload.php';
-	use Spatie\PdfToText\Pdf;
+	use Spatie\PdfToText\Pdf;	
 
 	$path = 'c:/Program Files/Git/mingw64/bin/pdftotext';	
 
 	// $pdf = Pdf::getText('data/45001-181-102316-1-10-20190317.pdf', $path, ['layout', 'x 96']);
 	$pdf = (new Pdf($path))
-		    ->setPdf('data/44996-181-102314-1-10-20190317.pdf')
+		    ->setPdf('data/44996-181-102314-1-10-20190317.pdf')		    
 		    ->text();
-	// $pdf = str_replace('', "<br><br>", $pdf);	
-	$pdf = str_replace("\n", "ntr123", $pdf);	
-	$pdf = strtolower($pdf);
-	// $pdf = substr($pdf, strpos($pdf, 'abstract'));
 
-	$pdf = get_string_between($pdf, 'abstrak', '');
-	$pdf = get_string_between($pdf, 'ntr123', 'ntr123');
+	$pdf = str_replace('', "<br><br>", $pdf);
+	// $pdf = str_replace("\n", "<br>", $pdf);
+	// $pdf = str_replace('p-ISSN', '', $pdf);
+	$del = ["p-ISSN","Jurnal Elektronik Ilmu Komputer"];
+
+	for ($i=0; $i <count($del) ; $i++) { 
+
+		$temp = strpos($pdf, $del[$i]);
+		while($pdf[$temp] != "\n"){
+			$temp++;
+		}
+		
+		$text = cut_string_between($pdf,strpos($pdf, $del[$i]), $temp);
+		$pdf = str_replace($text, '', $pdf);
+	}	
+
+	$pdf = str_replace("\n", "<br>", $pdf);
 
 	echo $pdf;
 
@@ -27,3 +38,13 @@
 	    $len = strpos($string, $end, $ini) - $ini;
 	    return substr($string, $ini, $len);
 	}
+
+	function cut_string_between($string, $start, $end){
+		$text = '';
+		for ($i=$start; $i <= $end ; $i++) { 
+			$text .= $string[$i];
+		}
+
+		return $text;
+	}
+
