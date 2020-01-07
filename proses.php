@@ -11,17 +11,19 @@
 		    ->setPdf('data/'.$_FILES['file']['name'])
 		    ->text();
 
-	$del = ["p-ISSN","Jurnal Elektronik Ilmu Komputer"];
+	$del = ["p-ISSN","Jurnal Elektronik Ilmu Komputer","e-ISSN"];
 
 	for ($i=0; $i <count($del) ; $i++) { 
 		if(strpos($pdf, $del[$i])){
-			$temp = strpos($pdf, $del[$i]);
-			while($pdf[$temp] != "\n"){
-				$temp++;
+			$temps = strpos($pdf, $del[$i]);
+			if($temps != null){
+				while($pdf[$temps] != "\n"){
+					$temps++;
+				}
+				
+				$text = cut_string_between($pdf,strpos($pdf, $del[$i]), $temps);
+				$pdf = str_replace($text, '', $pdf);
 			}
-			
-			$text = cut_string_between($pdf,strpos($pdf, $del[$i]), $temp);
-			$pdf = str_replace($text, '', $pdf);
 		}
 	}	
 
@@ -120,7 +122,7 @@
 
 	}
 
-	mysqli_query($conn,"DELETE * FROM relasi WHERE DF = 0");
+	mysqli_query($conn,"DELETE FROM relasi WHERE DF = 0");
 
 
 	echo $data;

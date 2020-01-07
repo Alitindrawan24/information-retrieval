@@ -5,25 +5,29 @@
 
 	$path = 'c:/Program Files/Git/mingw64/bin/pdftotext';	
 
-	// $pdf = Pdf::getText('data/45001-181-102316-1-10-20190317.pdf', $path, ['layout', 'x 96']);
+	// $pdf = Pdf::getText('data/45001-181-102316-1-10-20190317.pdf', $path, ['layout', 'x 96']);	
 	$pdf = (new Pdf($path))
-		    ->setPdf('data/44996-181-102314-1-10-20190317.pdf')		    
+		    ->setPdf('data/4.pdf')		    
 		    ->text();
+
 
 	$pdf = str_replace('', "<br><br>", $pdf);
 	// $pdf = str_replace("\n", "<br>", $pdf);
 	// $pdf = str_replace('p-ISSN', '', $pdf);
-	$del = ["p-ISSN","Jurnal Elektronik Ilmu Komputer"];
+	$del = ["p-ISSN","Jurnal Elektronik Ilmu Komputer","e-ISSN"];
+	
 
 	for ($i=0; $i <count($del) ; $i++) { 
 
 		$temp = strpos($pdf, $del[$i]);
-		while($pdf[$temp] != "\n"){
-			$temp++;
+		if($temp != null){
+			while($pdf[$temp] != "\n"){
+				$temp++;
+			}
+			
+			$text = cut_string_between($pdf,strpos($pdf, $del[$i]), $temp);
+			$pdf = str_replace($text, '', $pdf);
 		}
-		
-		$text = cut_string_between($pdf,strpos($pdf, $del[$i]), $temp);
-		$pdf = str_replace($text, '', $pdf);
 	}	
 
 	$pdf = str_replace("\n", "<br>", $pdf);

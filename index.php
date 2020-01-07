@@ -12,7 +12,7 @@
           <form method="post" id="form" name="form">
             <div class="form-row">
               <div class="col-12 col-md-9 mb-2 mb-md-0">
-                <input type="text" class="form-control form-control-lg" placeholder="Masukkan kata yang ingin dicari..." name="cari">
+                <input type="text" class="form-control form-control-lg" placeholder="Masukkan kata yang ingin dicari..." name="cari" id="cari">
               </div>
               <div class="col-12 col-md-3">
                 <button type="submit" class="btn btn-block btn-lg btn-primary">Cari</button>
@@ -28,6 +28,7 @@
     <div class="container">
       <div class="row">
         <div class="col-xl-12 mx-auto">
+          <center><h1 id="text"></h1></center>
           <table class="table" style="text-align: center;">
             
           </table>
@@ -48,7 +49,8 @@
             method : 'POST',            
             url : 'cari.php',
             data : data,
-            success : function(data){               
+            success : function(data){ 
+              $('#text').html('Hasil Pencarian : '+$('#cari').val());
               $('.table').empty();
               $('.table').append(data);
               $('.table').DataTable();
