@@ -15,7 +15,7 @@
                 <input type="text" class="form-control form-control-lg" placeholder="Masukkan kata yang ingin dicari..." name="cari" id="cari">
               </div>
               <div class="col-12 col-md-3">
-                <button type="submit" class="btn btn-block btn-lg btn-primary">Cari</button>
+                <button type="submit" id="btn-cari" class="btn btn-block btn-lg btn-primary">Cari</button>
               </div>
             </div>
           </form>
@@ -42,14 +42,18 @@
 </html>
 
 <script type="text/javascript">
-  $(function(){
+  $(function(){    
     $('#form').submit(function(e){
+        $('#btn-cari').prop('disabled',true);
+        $('#btn-cari').html("Pencarian ...");
         var data = $(this).serializeArray();
           $.ajax({
             method : 'POST',            
             url : 'cari.php',
             data : data,
             success : function(data){ 
+              $('#btn-cari').prop('disabled',false);
+              $('#btn-cari').html("Cari");
               $('#text').html('Hasil Pencarian : '+$('#cari').val());
               $('.table').empty();
               $('.table').append(data);
